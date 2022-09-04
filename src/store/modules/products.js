@@ -36,7 +36,7 @@ const getters = {
     return state.materialsData ? state.materialsData.items : [];
   },
   productCategories: (state) => {
-    return state.productCategories ? state.productCategoriesData.items : [];
+    return state.productCategoriesData ? state.productCategoriesData.items : [];
   },
   seasons: (state) => {
     return state.seasonsData ? state.seasonsData.items : [];
@@ -89,7 +89,7 @@ const mutations = {
     state.seasonsData = seasons
   },
   setColors (state, colors) {
-    state.colorData = colors
+    state.colorsData = colors
   },
 }
 

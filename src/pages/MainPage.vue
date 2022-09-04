@@ -6,7 +6,7 @@
           Каталог
         </h1>
         <span class="content__info">
-          {{ countProductList }} товара
+          {{ prettyProductAmount }}
         </span>
       </div>
     </div>
@@ -50,6 +50,7 @@
 import ProductListVue from '@/components/product/ProductList.vue';
 import BasePagination from '@/components/base/BasePagination.vue';
 import ProductFilter from '@/components/product/ProductFilter.vue';
+import productAmount from '@/helpers/productAmount';
 import { computed, defineComponent, ref, watch } from "vue";
 import { useStore } from 'vuex'
 
@@ -65,7 +66,7 @@ export default defineComponent({
     const season = ref([])
     const color = ref([])
     const page = ref(1)
-    const productPerPage = ref(3)
+    const productPerPage = ref(12)
 
     const productsLoading = ref(false)
     const productsLoadingFailed = ref(false)
@@ -74,6 +75,8 @@ export default defineComponent({
     const productList = computed(() => store.getters['products/products'])
 
     const countProductList = computed(() => store.getters['products/countProduct'])
+
+    const prettyProductAmount = computed(() => productAmount(countProductList.value))
 
     const doLoadProductList = async () =>{
       productsLoading.value = true;
@@ -89,9 +92,9 @@ export default defineComponent({
               categoryId: categoryId.value,
               minPrice: priceFrom.value,
               maxPrice: priceTo.value,
-              'materialIds[]': material.value,
-              'seasonIds[]': season.value,
-              'colorIds[]': color.value
+              materialIds: material.value,
+              seasonIds: season.value,
+              colorIds: color.value
             },
         })
        } catch (error) {
@@ -103,7 +106,7 @@ export default defineComponent({
       }, 0);
     }
 
-    watch([page,categoryId,priceFrom,priceTo,material,season], () => {
+    watch([page,categoryId,priceFrom,priceTo,material,season, color], () => {
       doLoadProductList()
     })
 
@@ -122,6 +125,7 @@ export default defineComponent({
       productsLoading,
       productsLoadingFailed,
       loadProductsTimer,
+      prettyProductAmount,
 
       productList,
       countProductList,

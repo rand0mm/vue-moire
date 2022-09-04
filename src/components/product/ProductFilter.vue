@@ -1,5 +1,5 @@
 <template>
-  <h2 class="filter__title">Фильтры</h2>
+  <h2 class="filter__title">Фильтр</h2>
 
   <form v-bind="$attrs" class="filter__form form" action="#" method="get" @submit.prevent="doSubmit">
     <fieldset class="form__block">
@@ -31,6 +31,19 @@
     </fieldset>
 
     <fieldset class="form__block">
+      <legend class="form__legend">Цвет</legend>
+      <ul class="colors colors--black">
+        <li class="colors__item" v-for="color in colors" :key="color.id">
+          <label class="colors__label">
+            <input class="colors__radio sr-only" :value="color.id" type="checkbox"
+            v-model="curColor" :name="color.title" >
+            <span class="colors__value" :style="{ 'background-color': color.code }">
+          </span></label>
+        </li>
+      </ul>
+    </fieldset>
+
+    <fieldset class="form__block">
       <legend class="form__legend">Материал</legend>
       <ul class="check-list">
         <li
@@ -40,7 +53,7 @@
           <label class="check-list__label">
             <input class="check-list__check sr-only"
             type="checkbox" :value="material.id"
-            v-model.number="curMaterial">
+            v-model="curMaterial">
             <span class="check-list__desc">
               {{ material.title}}
             <span>({{material.productsCount}})</span>
@@ -60,7 +73,7 @@
           <label class="check-list__label">
             <input class="check-list__check sr-only"
              type="checkbox" :value="season.id"
-            v-model.number="curSeason">
+            v-model="curSeason">
             <span class="check-list__desc">
               {{season.title}}
               <span>({{season.productsCount}})</span>
@@ -75,7 +88,7 @@
       Применить
     </button>
     <button class="filter__reset button button--second"
-    type="button"  @click.prevent="doReset">
+    type="button"  @click.prevent="doFilterReset" v-if="!filterInit">
       Сбросить
     </button>
   </form>
@@ -86,62 +99,84 @@ import { useStore } from 'vuex';
 import { defineComponent, ref, computed, watch, toRefs} from 'vue';
 
 export default defineComponent({
-  props: ['priceFrom', 'priceTo', 'categoryId', 'material', 'season'],
+  props: ['priceFrom', 'priceTo', 'categoryId', 'material', 'season', 'color'],
   setup(props, { emit }) {
     const store = useStore()
-    const { priceFrom, priceTo, categoryId, material, season } = toRefs(props)
+    const { priceFrom, priceTo, categoryId, material, season, color } = toRefs(props)
 
     const curPriceFrom = ref(0)
     const curPriceTo = ref(0)
     const curCategory = ref(0)
-    const curMaterial = ref(0)
-    const curSeason = ref(0)
+    const curMaterial = ref([])
+    const curSeason = ref([])
+    const curColor = ref([])
+    const filterInit = computed(() => !priceFrom.value && !priceTo.value && !categoryId.value
+      && !material.value.length && !season.value.length && !color.value.length)
 
     const categories = computed(() => store.getters['products/productCategories'])
     const materials = computed(() => store.getters['products/materials'])
     const seasons = computed(() => store.getters['products/seasons'])
+    const colors = computed(() => store.getters['products/colors'])
+
 
     const doSubmit = () => {
+      if(!curPriceFrom.value && !curPriceTo.value && !curCategory.value
+      && !curMaterial.value.length && !curSeason.value.length && !curColor.value.length) {
+        return
+      }
       emit('update:priceFrom',curPriceFrom.value);
       emit('update:priceTo',curPriceTo.value);
       emit('update:categoryId',curCategory.value);
       emit('update:material',curMaterial.value);
       emit('update:season',curSeason.value);
-
+      emit('update:color',curColor.value);
     }
     const doFilterReset = () => {
       emit('update:priceFrom', 0);
       emit('update:priceTo', 0);
       emit('update:categoryId', 0);
-      emit('update:material', curMaterial.value);
-      emit('update:season',curSeason.value);
-
+      emit('update:material',[]);
+      emit('update:season',[]);
+      emit('update:color',[]);
     }
-    watch(priceFrom, (val1, val2) => {
-      curPriceFrom.value = val2
+
+    store.dispatch('products/getSeasons')
+    store.dispatch('products/getMaterials')
+    store.dispatch('products/getProductCategories')
+    store.dispatch('products/getColors')
+
+    watch(priceFrom, (val) => {
+      curPriceFrom.value = val
     })
-    watch(priceTo, (val1, val2) => {
-      curPriceTo.value = val2
+    watch(priceTo, (val) => {
+      curPriceTo.value = val
     })
-    watch(categoryId, (val1, val2) => {
-      curCategory.value = val2
+    watch(categoryId, (val) => {
+      curCategory.value = val
     })
-    watch(material, (val1, val2) => {
-      curMaterial.value = val2
+    watch(material, (val) => {
+      curMaterial.value = val
     })
-    watch(season, (val1, val2) => {
-      curSeason.value = val2
+    watch(season, (val) => {
+      curSeason.value = val
     })
+    watch(color, (val) => {
+      curColor.value = val
+    })
+
     return {
       curPriceFrom,
       curPriceTo,
       curCategory,
       curMaterial,
       curSeason,
+      curColor,
+      filterInit,
 
       categories,
       materials,
       seasons,
+      colors,
 
       doSubmit,
       doFilterReset,
