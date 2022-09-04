@@ -21,7 +21,7 @@
   </header>
 
   <router-view :key="$route.fullPath"/>
-  
+
   <footer class="footer container">
     <div class="footer__wrapper">
       <ul class="footer__links">
@@ -117,7 +117,7 @@
 
 <script>
   export default {
-
+    
   }
 </script>
 
