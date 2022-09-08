@@ -8,7 +8,7 @@ import OrderPage from '@/pages/OrderPage.vue';
 import OrderInfoPage from '@/pages/OrderInfoPage.vue';
 
 const routes = [
-  { name: 'main', component: MainPage, path: '/' },
+  { name: 'main', component: MainPage, path: '/:categoryId?' },
   { name: 'product', component: ProductPage, path: '/product/:id' },
   { name: 'cart', component: CartPage, path: '/cart' },
   { name: 'order', component: OrderPage, path: '/order' },

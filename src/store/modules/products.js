@@ -1,5 +1,7 @@
 
 import shop from '@/api/shop'
+import numberFormat from '@/helpers/numberFormat';
+
 
 const state = {
   productsData: null,
@@ -25,7 +27,8 @@ const getters = {
         price: product.price,
         img: img,
         colorList: product.colors,
-        color: product.colors[0].id,
+        color: {id: product.colors[0].id, colorId:product.colors[0].color.id},
+        pricePretty: numberFormat( product.price )
       }
     }) : [];
   },

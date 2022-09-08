@@ -5,6 +5,7 @@ const state = {
   userAccessKey: null,
   cartProductsData: [],
   isCartLoad: false,
+  deliversData: [],
 }
 
 const getters = {
@@ -36,7 +37,9 @@ const getters = {
       return total + product.price * product.amount
     }, 0)
   },
-
+  deliversData: (state) => {
+    return state.deliversData
+  },
   isCartProductsLoad: (state) => {
     return state.isCartLoad;
   },
@@ -65,10 +68,10 @@ const actions = {
     try {
       commit('updateIsCartLoad', true);
       const res = await shop.addToCart({ productId, colorId, sizeId, quantity: amount },{ userAccessKey: state.userAccessKey, });
-
       commit('updateCartProductsData', res.data.items);
+      return  true
     } catch (error) {
-      commit('updateCartProductsData', []);
+      return false;
     }
     finally {
       commit('updateIsCartLoad', false);
@@ -97,6 +100,14 @@ const actions = {
       commit('syncProductList');
     }
   },
+  async getDelivers({commit}) {
+    try {
+      const res = await shop.getDelivers();
+      commit('updateDeliversData', res.data)
+    } catch (error) {
+      commit('updateDeliversData', [])
+    }
+  }
 }
 
 const mutations = {
@@ -128,6 +139,9 @@ const mutations = {
       item.amount = amount;
     }
   },
+  updateDeliversData(state, delivers) {
+    state.deliversData = delivers;
+  }
 }
 
 export default {

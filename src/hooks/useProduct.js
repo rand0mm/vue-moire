@@ -20,15 +20,24 @@ export default function() {
     try {
       const res = await shop.getProduct(productId);
       const product = res.data;
+      let img = null;
+      try {
+        img = product.colors[0].gallery[0].file.url
+      } catch (error) {
+        img = null;
+      }
       productData.value = {
         id: product.id,
         categoryId: product.category.id,
         category: product.category,
         title: product.title,
         price: product.price,
-        img: product.image.url,
+        img: img,
         colorList: product.colors,
-        color: product.colors.map((i) => i.id)[0],
+        color: {id: product.colors[0].id, colorId:product.colors[0].color.id},
+        sizes: product.sizes,
+        size: product.sizes[0].id,
+        materials: product.materials,
         pricePretty: numberFormat(product.price),
       }
     } catch (error) {

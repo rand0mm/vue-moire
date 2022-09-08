@@ -29,6 +29,9 @@ export default {
   getColors() {
     return axios.get(`${API_BASE_URL}/api/colors`)
   },
+  getDelivers() {
+    return axios.get(`${API_BASE_URL}/api/deliveries`)
+  },
   addToCart(product, params) { // { productId, colorId, sizeId, quantity }
     return axios.post(`${API_BASE_URL}/api/baskets/products`, product, { params })
   },

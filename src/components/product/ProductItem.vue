@@ -1,36 +1,38 @@
 <template>
   <li class="catalog__item">
-    <router-link class="catalog__pic" :to="{name:'product', params: {id: productNormal.id}}">
-      <img :src="curImg" :alt="productNormal.title">
+    <router-link class="catalog__pic" :to="{name:'product', params: {id: product.id}}">
+      <img :src="curImg" :alt="product.title">
     </router-link>
 
     <h3 class="catalog__title">
-      <a href="#" @click.prevent="doOpenQuickView(productNormal.id)">
-        {{productNormal.title}}
+      <a href="#" @click.prevent="doOpenQuickView(product.id)">
+        {{product.title}}
       </a>
     </h3>
 
     <span class="catalog__price">
-        {{ productNormal.pricePretty }} ₽
+        {{ product.pricePretty }} ₽
     </span>
 
-    <ul class="colors colors--black">
-      <ProductColorsVue :colors="productNormal.colorList" v-model="curColor"/>
-    </ul>
+    <ProductColorsVue
+      :colors="product.colorList"
+      v-model="curColor.id" class="catalog__colors"/>
+    <ProductAddToCartVue :product="curProduct" class="catalog__button"/>
   </li>
   <BaseModalVue v-model:open="isQuickViewOpen">
     <ProductQuickViewVue :product-id="currentProductId"/>
   </BaseModalVue>
 </template>
 <script>
-import numberFormat from '@/helpers/numberFormat';
 import BaseModalVue from '@/components/base/BaseModal.vue';
 import ProductColorsVue from './ProductColors.vue';
+import ProductAddToCartVue from '@/components/product/ProductAddToCart.vue';
+
 import { defineAsyncComponent, h, defineComponent, ref, computed, watch} from 'vue';
 
 export default defineComponent({
   inheritAttrs: false,
-  components: { BaseModalVue, ProductColorsVue, ProductQuickViewVue: defineAsyncComponent({
+  components: { BaseModalVue, ProductColorsVue, ProductAddToCartVue, ProductQuickViewVue: defineAsyncComponent({
     loader: () => import('@/components/product/ProductQuickView.vue'),
     delay: 0,
     loadingComponent: () => h('div', 'Загрузка...')
@@ -45,8 +47,17 @@ export default defineComponent({
 
     const curColor = ref(props.product.color)
 
-    watch(curColor, () => {
-      let val = props.product.colorList.find((i) => i.id === curColor.value).gallery[0].file.url
+    const curProduct = computed(() => {
+      return {
+        productId: props.product.id,
+        colorId: curColor.value.colorId,
+        sizeId: null,
+        amount: 1,
+      }
+    })
+
+    watch(curColor.value, () => {
+      let val = props.product.colorList.find((i) => i.id === curColor.value.id).gallery[0].file.url
       curImg.value = `${val}`
     })
 
@@ -61,12 +72,6 @@ export default defineComponent({
       }
     })
 
-
-
-    const productNormal = computed(() => {
-      return {...props.product, pricePretty: numberFormat( props.product.price )}
-    })
-
     const doOpenQuickView = (productId) => {
       currentProductId.value = productId;
     }
@@ -74,12 +79,20 @@ export default defineComponent({
     return {
       currentProductId,
       isQuickViewOpen,
-      productNormal,
       curImg,
       curColor,
+      curProduct,
 
       doOpenQuickView
     }
   },
 });
 </script>
+
+
+<style scoped>
+  .catalog__item {
+    display: flex;
+    flex-direction: column;
+  }
+</style>

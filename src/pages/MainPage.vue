@@ -53,11 +53,14 @@ import ProductFilter from '@/components/product/ProductFilter.vue';
 import productAmount from '@/helpers/productAmount';
 import { computed, defineComponent, ref, watch } from "vue";
 import { useStore } from 'vuex'
+import { useRoute } from 'vue-router';
+
 
 export default defineComponent({
   components: { ProductListVue, BasePagination, ProductFilter },
   setup() {
-    const store = useStore()
+    const store = useStore();
+    const route = useRoute();
 
     const priceFrom = ref(0)
     const priceTo = ref(0)
@@ -78,7 +81,7 @@ export default defineComponent({
 
     const prettyProductAmount = computed(() => productAmount(countProductList.value))
 
-    const doLoadProductList = async () =>{
+    const doLoadProductList = async (category) =>{
       productsLoading.value = true;
       productsLoadingFailed.value = false;
       clearTimeout(loadProductsTimer.value);
@@ -89,7 +92,7 @@ export default defineComponent({
             params: {
               page: page.value,
               limit: productPerPage.value,
-              categoryId: categoryId.value,
+              categoryId: categoryId.value || category,
               minPrice: priceFrom.value,
               maxPrice: priceTo.value,
               materialIds: material.value,
@@ -110,7 +113,7 @@ export default defineComponent({
       doLoadProductList()
     })
 
-    doLoadProductList();
+    doLoadProductList(route.params.categoryId);
 
     return {
       priceFrom,
