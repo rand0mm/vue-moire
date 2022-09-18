@@ -1,28 +1,54 @@
 <template>
     <li class="cart__item product">
       <div class="product__pic">
-        <img :src="item.product.img" width="120" height="120"
-          :alt="item.product.title">
+        <img
+          :src="item.product.img"
+          :alt="item.product.title"
+          width="120" height="120"
+        >
       </div>
+
       <h3 class="product__title">
         {{item.product.title}}
       </h3>
+
+      <span class="product__info">
+        <span
+          v-for="(skuItem, index) in item.product.sku"
+          :key="index">
+          {{skuItem.title}}:
+          <span>
+            <i
+              v-if="skuItem.title === 'Цвет'"
+              style="background-color: #FF9B78">
+            </i>
+            {{skuItem.value}} &nbsp;
+          </span>
+        </span>
+      </span>
+
       <span class="product__code">
-        {{item.product.id}}
+        Артикул:&nbsp;{{item.product.id}}
       </span>
 
       <div class="product__counter form__counter">
-        <button type="button" aria-label="Убрать один товар"
-         @click.prevent="updatedAmont(amount - 1)">
+        <button
+          type="button"
+          aria-label="Убрать один товар"
+          @click.prevent="doUpdatedAmont(amount - 1)">
           <svg width="10" height="10" fill="currentColor">
             <use xlink:href="#icon-minus"></use>
           </svg>
         </button>
 
-        <input type="text" v-model.number="amount">
-
-        <button type="button" aria-label="Добавить один товар"
-        @click.prevent="updatedAmont(amount + 1)">
+        <input
+          type="text"
+          v-model.number="amount"
+        >
+        <button
+          type="button"
+          aria-label="Добавить один товар"
+          @click.prevent="doUpdatedAmont(amount + 1)">
           <svg width="10" height="10" fill="currentColor">
             <use xlink:href="#icon-plus"></use>
           </svg>
@@ -33,8 +59,11 @@
         {{ totalPricePretty }}
       </b>
 
-      <button class="product__del button-del" type="button"
-      aria-label="Удалить товар из корзины" @click.prevent="removeProduct(item.product.id)">
+      <button
+        class="product__del button-del"
+        type="button"
+        aria-label="Удалить товар из корзины"
+        @click.prevent="doUpdatedAmont(0)">
         <svg width="20" height="20" fill="currentColor">
           <use xlink:href="#icon-close"></use>
         </svg>
@@ -44,32 +73,35 @@
 
 <script>
 import numberFormat from '@/helpers/numberFormat';
-import { mapActions } from 'vuex';
+import { defineComponent, computed} from 'vue';
+import { useStore } from 'vuex'
+export default defineComponent({
+  props: [ 'item' ],
+  setup(props) {
+    const store = useStore();
 
-export default {
-  props: ['item'],
-  computed: {
-    totalPricePretty() {
-      return numberFormat( this.item.product.price * this.item.amount)
-    },
-    amount: {
+    const totalPricePretty = computed(() => numberFormat( props.item.product.price * props.item.amount));
+    const amount = computed({
       get() {
-        return this.item.amount;
+        return props.item.amount;
       },
       set(value) {
-        this.updateProductAmount({ productId: this.item.product.id, amount: value });
+        store.dispatch('cart/updateProductAmount', { productId: props.item.product.id, amount: value })
       },
-    },
-  },
-  methods: {
-    ...mapActions({ removeProduct: 'removeProduct', updateProductAmount: 'updateProductAmount' }),
-    updatedAmont(newAmount) {
+    })
+    const doUpdatedAmont = (newAmount) => {
       if (newAmount >= 1) {
-        this.amount = newAmount;
+        amount.value = newAmount;
       } else {
-        this.removeProduct(this.item.product.id);
+        store.dispatch('cart/removeProduct', props.item.product.id)
       }
-    },
-  },
-};
+    };
+    return {
+      totalPricePretty,
+      amount,
+
+      doUpdatedAmont
+    }
+  }
+})
 </script>

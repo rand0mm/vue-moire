@@ -5,12 +5,16 @@
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
-          <router-link class="breadcrumbs__link" :to="{ name: 'main' }">
+          <router-link
+            class="breadcrumbs__link"
+            :to="{ name: 'main' }">
             Каталог
           </router-link>
         </li>
         <li class="breadcrumbs__item">
-          <router-link class="breadcrumbs__link" :to="{ name: 'main', params: {categoryId: category.id}}">
+          <router-link
+            class="breadcrumbs__link"
+            :to="{ name: 'main', params: {categoryId: category.id}}">
             {{ category.title }}
           </router-link>
         </li>
@@ -30,10 +34,14 @@
             :alt="product.title">
         </div>
         <ul class="pics__list">
-          <li class="pics__item" v-for="pic in pics"
+          <li
+            class="pics__item"
+            v-for="pic in pics"
             :key="pic.id"
             @click.prevent="doChangePic(pic.id)" >
-            <a href="" class="pics__link"
+            <a
+              class="pics__link"
+              href=""
               :class="{ 'pics__link--current': curPic.id == pic.id}">
               <img width="98" height="98" :src="pic.img" :alt="product.title">
             </a>
@@ -42,12 +50,17 @@
       </div>
 
       <div class="item__info">
-        <span class="item__code">Артикул:{{ product.id }}</span>
+        <span class="item__code">
+          Артикул:{{ product.id }}
+        </span>
         <h2 class="item__title">
           {{ product.title }}
         </h2>
         <div class="item__form">
-          <form class="form" action="#" method="POST">
+          <form
+            class="form"
+            action="#"
+            method="POST">
             <div class="item__row item__row--center">
               <ProductAmount v-model:productAmount="curAmount"/>
               <b class="item__price">
@@ -58,14 +71,23 @@
             <div class="item__row">
               <fieldset class="form__block">
                 <legend class="form__legend">Цвет</legend>
-                <ProductColorsVue :colors="product.colorList" v-model="curColor.id"/>
+                <ProductColorsVue
+                  :colors="product.colorList"
+                  v-model="curColor.id"
+                />
               </fieldset>
 
               <fieldset class="form__block">
-                <legend class="form__legend">Размер</legend>
+                <legend class="form__legend">
+                  Размер
+                </legend>
                 <label class="form__label form__label--small form__label--select">
-                  <select class="form__select" name="sizes" v-model.number="curSize">
-                    <option v-for="size in product.sizes"
+                  <select
+                    class="form__select"
+                    name="sizes"
+                    v-model.number="curSize">
+                    <option
+                      v-for="size in product.sizes"
                      :value="size.id"
                      :key="size.id">
 
@@ -77,8 +99,8 @@
               </fieldset>
             </div>
             <ProductAddToCartVue
-            :product="curProduct"
-             class="item__button"/>
+              :product="curProduct"
+              class="item__button"/>
           </form>
         </div>
       </div>
@@ -107,7 +129,7 @@
           <p>
             <span v-for="material in product.materials"
              :key="material.id">
-            {{  material.title }}<br/>
+             {{  material.productsCount }}0% {{  material.title }}<br/>
             </span>
           </p>
 
@@ -149,7 +171,6 @@
 import ProductAmount from '@/components/product/ProductAmount.vue';
 import ProductAddToCartVue from '@/components/product/ProductAddToCart.vue';
 import ProductColorsVue from '@/components/product/ProductColors.vue';
-// import { useStore } from 'vuex';
 import { defineComponent, ref, computed, watch} from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex'

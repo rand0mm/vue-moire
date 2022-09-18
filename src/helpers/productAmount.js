@@ -7,7 +7,7 @@ export default function productAmount(value) {
       str = value < 10 ? 'Нет' : value+'товаров';
       break;
     case 1:
-      str = value < 20 ? value+' товаров':value+' товар';
+      str = value > 20 || value === 1 ? value+' товар' : value+' товаров';
       break;
     case 2:
     case 3:

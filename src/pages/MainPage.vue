@@ -23,18 +23,23 @@
       </aside>
 
       <section class="catalog">
-        <div v-if="productsLoading">
+        <div v-if="storeError">
+          {{storeError.message}}
+          Попробуйте обновить страницу
+        </div>
+
+        <div v-else-if="productsLoading">
           Загрузка товаров...
         </div>
 
-        <div v-if="productsLoadingFailed">
+        <div v-else-if="productsLoadingFailed">
           Произошла ошибка при загрузке товаров
           <button @click.prevent="doLoadProductList">
             Попробовать еще раз
           </button>
         </div>
 
-        <ProductListVue :productList="productList"/>
+        <ProductListVue v-else :productList="productList"/>
 
         <BasePagination
           v-model="page"
@@ -78,6 +83,9 @@ export default defineComponent({
     const productList = computed(() => store.getters['products/products'])
 
     const countProductList = computed(() => store.getters['products/countProduct'])
+
+    const storeError = computed(() => store.getters['products/error'])
+
 
     const prettyProductAmount = computed(() => productAmount(countProductList.value))
 
@@ -124,6 +132,7 @@ export default defineComponent({
       season,
       page,
       productPerPage,
+      storeError,
 
       productsLoading,
       productsLoadingFailed,

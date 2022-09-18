@@ -1,22 +1,18 @@
 <template>
-  <header class="header container">
+  <header v-if="!isSomeOpen" class="header container">
     <div class="header__wrapper">
       <span class="header__info">Каталог</span>
 
-      <a class="header__logo" href="#">
+      <router-link class="header__logo" :to="{name: 'main'}">
         <img src="img/svg/logo-moire.svg" alt="Логотип интернет магазина Moire" width="116" height="34">
-      </a>
+      </router-link>
 
       <a class="header__tel" href="tel:8 800 600 90 09">
         8 800 600 90 09
       </a>
 
-      <a class="header__cart" href="cart.html" aria-label="Корзина с товарами">
-        <svg width="19" height="24">
-          <use xlink:href="#icon-cart"></use>
-        </svg>
-        <span class="header__count" aria-label="Количество товаров">3</span>
-      </a>
+      <CartIndicatorVue/>
+
     </div>
   </header>
 
@@ -117,9 +113,34 @@
 </template>
 
 <script>
-  export default {
+import CartIndicatorVue from '@/components/cart/CartIndicator.vue';
+import useModal from '@/hooks/useModal';
+import { useStore } from 'vuex';
+import { defineComponent } from 'vue';
 
+
+
+export default defineComponent({
+  components: { CartIndicatorVue },
+  setup() {
+
+    const store = useStore()
+    const {isSomeOpen} = useModal();
+
+    const userAccessKey = localStorage.getItem('userAccessKey');
+    if (userAccessKey) {
+      store.commit('cart/updateUserAccessKey', userAccessKey)
+    }
+    store.dispatch('cart/loadCart')
+
+    return {
+      isSomeOpen,
+    }
   }
+})
+
+
+
 </script>
 
 

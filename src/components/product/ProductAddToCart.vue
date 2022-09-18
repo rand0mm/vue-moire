@@ -8,14 +8,17 @@
     </span>
   </button>
   <BaseModalVue v-model:open="isShowAddedMessage">
-    Товар добавлен в корзину
+    <div v-if="productAddError">{{productAddError.message}}</div>
+    <div v-else>
+      Товар добавлен в корзину
+    </div>
   </BaseModalVue>
 </template>
 
 <script>
 import BaseModalVue from '@/components/base/BaseModal.vue';
-import shop from '@/api/shop'
-
+import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 import { defineComponent, ref, computed} from 'vue';
 import { useStore } from 'vuex';
 
@@ -26,16 +29,25 @@ export default defineComponent({
   setup(props) {
     const store = useStore();
     const product = computed(() => props.product)
-    const isShowAddedMessage = ref(false)
 
+    const isShowAddedMessage = ref(false)
     const isProductAddLoad = ref(false);
+    const productAddError = ref(null);
 
     const doAddToCart = async () => {
       isProductAddLoad.value = true;
       isShowAddedMessage.value = false
       if(!product.value.sizeId) {
-        const res = await shop.getProduct(product.value.productId);
-        product.value.sizeId = res.data.sizes[0].id
+        try {
+          // берем первый размер в списке
+          const res = await axios.get(`${API_BASE_URL}/api/products/${product.value.productId}`)
+          product.value.sizeId = res.data.sizes[0].id
+        } catch (error) {
+          isProductAddLoad.value = false;
+          isShowAddedMessage.value = true;
+          productAddError.value = error.response.data.error
+          return
+        }
       }
       let params = {
         productId: product.value.productId,
@@ -54,6 +66,7 @@ export default defineComponent({
     return {
       isProductAddLoad,
       isShowAddedMessage,
+      productAddError,
 
       doAddToCart,
     }

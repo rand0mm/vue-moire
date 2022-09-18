@@ -1,4 +1,5 @@
-import shop from '../../api/shop'
+import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 
 const state = {
   orderInfo: null,
@@ -11,9 +12,10 @@ const getters = {
 }
 
 const actions = {
-  async loadOrderInfo(commit, {params, orderId}) {
+  async loadOrderInfo({commit,rootState}, orderId) {
      try {
-      const res = await shop.getOrderInfo(params, orderId);
+      const res = await axios.get(`${API_BASE_URL}/api/orders/${orderId}`,
+       {params: { userAccessKey: rootState.cart.userAccessKey, }})
       commit('updateOrderInfo', res.data);
      } catch (error) {
       commit('updateOrderInfo', error);

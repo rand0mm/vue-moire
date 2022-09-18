@@ -1,6 +1,7 @@
 
-import shop from '@/api/shop'
 import numberFormat from '@/helpers/numberFormat';
+import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 
 
 const state = {
@@ -9,6 +10,8 @@ const state = {
   productCategoriesData: null,
   seasonsData: null,
   colorsData: null,
+
+  loadError: null
 }
 
 const getters = {
@@ -52,29 +55,44 @@ const getters = {
 
 const actions = {
   async getProducts({commit},params) {
-    const res = await shop.getProducts(params);
-    commit('setProducts', res.data);
-    return res.data
+    try { // {categoryId, materialIds[], seasonIds[], colorIds[], page, limit, minPrice, maxPrice}
+      const res = await axios.get(`${API_BASE_URL}/api/products`,params)
+      commit('setProducts', res.data);
+    } catch (e) {
+      commit('setLoadError', e.response.data.error)
+    }
   },
   async getMaterials({commit}) {
-    const res = await shop.getMaterials();
-    commit('setMaterials', res.data);
-    return res.data
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/materials`);
+      commit('setMaterials', res.data);
+    } catch (e) {
+      commit('setLoadError', e.response.data.error)
+    }
   },
   async getProductCategories({commit}) {
-    const res = await shop.getProductCategories();
-    commit('setProductCategories', res.data);
-    return res.data
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/productCategories`);
+      commit('setProductCategories', res.data);
+    } catch (e) {
+      commit('setLoadError', e.response.data.error)
+    }
   },
   async getSeasons({commit}) {
-    const res = await shop.getSeasons();
-    commit('setSeasons', res.data);
-    return res.data
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/seasons`)
+      commit('setSeasons', res.data);
+    } catch (e) {
+      commit('setLoadError', e.response.data.error)
+    }
   },
   async getColors({commit}) {
-    const res = await shop.getColors();
-    commit('setColors', res.data);
-    return res.data
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/colors`)
+      commit('setColors', res.data);
+    } catch (e) {
+      commit('setLoadError', e.response.data.error)
+    }
   }
 }
 
@@ -93,6 +111,9 @@ const mutations = {
   },
   setColors (state, colors) {
     state.colorsData = colors
+  },
+  setLoadError (state, error) {
+    state.loadError = error
   },
 }
 

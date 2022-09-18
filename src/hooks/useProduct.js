@@ -1,6 +1,7 @@
 import numberFormat from '@/helpers/numberFormat';
 import { computed, reactive, ref} from 'vue'
-import shop from '@/api/shop'
+import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 
 export default function() {
   const productData = ref( null );
@@ -18,7 +19,7 @@ export default function() {
     fetchStatus.isLoading = true;
     fetchStatus.isFailed = false;
     try {
-      const res = await shop.getProduct(productId);
+      const res = await axios.get(`${API_BASE_URL}/api/products/${productId}`)
       const product = res.data;
       let img = null;
       try {
@@ -40,10 +41,8 @@ export default function() {
         materials: product.materials,
         pricePretty: numberFormat(product.price),
       }
-    } catch (error) {
+    } catch (e) {
       fetchStatus.isFailed = true;
-      productData.value = 'Продукт не найден';
-      if(productData.value) fetchStatus.isFailed = false;
     }
     finally {
       fetchStatus.isLoading = false;
